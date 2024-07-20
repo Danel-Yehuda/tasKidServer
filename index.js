@@ -1,6 +1,8 @@
+const userRoutes = require('./routes/userRoutes');
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+
 
 const app = express();
 
@@ -13,6 +15,8 @@ const PORT = process.env.PORT || 8080;
 app.get('/', (req, res) => {
     res.send('TasKids is up!');
 });
+
+app.use('/api/users', userRoutes);
 
 app.listen(PORT, () => {
     console.log(`TasKids server is running on port ${PORT}`);
