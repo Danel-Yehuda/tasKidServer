@@ -13,9 +13,14 @@ exports.signup = async (req, res) => {
             'INSERT INTO tbl_109_users (user_fname, user_lname, user_email, user_password) VALUES (?, ?, ?, ?)',
             [firstName, lastName, email, hashedPassword]
         );
-
+        [rows] = await connection.execute(
+            'SELECT * FROM tbl_109_users WHERE user_email = ?',
+            [email]
+        );
+        const user = rows[0];
+        const { user_password, ...userWithoutPassword } = user;
         await connection.end();
-        res.status(201).send({ message: 'User registered successfully!' });
+        res.status(201).send({ data: userWithoutPassword });
     } catch (error) {
         if (error.code === 'ER_DUP_ENTRY') {
             res.status(400).send({ message: 'Email already registered!' });
@@ -47,9 +52,9 @@ exports.signin = async (req, res) => {
         if (!isPasswordValid) {
             return res.status(400).send({ message: 'Invalid email or password' });
         }
-
+        const { user_password, ...userWithoutPassword } = user;
         await connection.end();
-        res.status(200).send({ message: 'User signed in successfully!' });
+        res.status(200).send({ data: userWithoutPassword });
     } catch (error) {
         console.error("Error during signin:", error);
         res.status(500).send({ message: 'Internal server error' });
