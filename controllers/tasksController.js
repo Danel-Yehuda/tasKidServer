@@ -2,14 +2,13 @@ require('dotenv').config();
 const { dbConnection } = require('../db_connection');
 
 exports.createTask = async (req, res) => {
-    const { name } = req.body;
-
+    const { taskName } = req.body;
     try {
         const connection = await dbConnection.createConnection();
         
         const [result] = await connection.execute(
             'INSERT INTO tbl_109_tasks (task_name) VALUES (?)',
-            [name]
+            [taskName]
         );
         
         const [rows] = await connection.execute(
