@@ -1,4 +1,5 @@
 const userRoutes = require('./routes/userRoutes');
+const taskRoutes = require('./routes/tasksRoutes');
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -17,6 +18,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/users', userRoutes);
+app.use('/api/tasks', taskRoutes);
 
 app.listen(PORT, () => {
     console.log(`TasKids server is running on port ${PORT}`);
