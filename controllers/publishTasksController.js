@@ -66,3 +66,34 @@ exports.deletePublishTask = async (req, res) => {
         res.status(500).send({ message: 'Internal server error' });
     }
 };
+
+// Controller to update a publish task by ID
+exports.updatePublishTask = async (req, res) => {
+    const { id } = req.params;
+    const { publish_task_name, publish_task_status, publish_task_coins, publish_task_deadline, publish_task_assigned_to } = req.body;
+    try {
+        const connection = await dbConnection.createConnection();
+        
+        const [result] = await connection.execute(
+            'UPDATE tbl_109_publish_tasks SET publish_task_name = ?, publish_task_status = ?, publish_task_coins = ?, publish_task_deadline = ?, publish_task_assigned_to = ? WHERE publish_task_id = ?',
+            [publish_task_name, publish_task_status, publish_task_coins, publish_task_deadline, publish_task_assigned_to, id]
+        );
+        
+        if (result.affectedRows === 0) {
+            await connection.end();
+            return res.status(404).send({ message: 'Publish task not found' });
+        }
+
+        const [rows] = await connection.execute(
+            'SELECT * FROM tbl_109_publish_tasks WHERE publish_task_id = ?',
+            [id]
+        );
+
+        const updatedTask = rows[0];
+        await connection.end();
+        res.status(200).send({ data: updatedTask });
+    } catch (error) {
+        console.error("Error updating publish task:", error);
+        res.status(500).send({ message: 'Internal server error' });
+    }
+};
