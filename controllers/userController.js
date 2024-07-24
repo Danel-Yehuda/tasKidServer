@@ -13,10 +13,12 @@ exports.signup = async (req, res) => {
             'INSERT INTO tbl_109_users (user_fname, user_lname, user_email, user_password) VALUES (?, ?, ?, ?)',
             [firstName, lastName, email, hashedPassword]
         );
+
         [rows] = await connection.execute(
             'SELECT * FROM tbl_109_users WHERE user_email = ?',
             [email]
         );
+        
         const user = rows[0];
         const { user_password, ...userWithoutPassword } = user;
         await connection.end();
