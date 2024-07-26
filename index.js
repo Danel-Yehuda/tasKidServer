@@ -21,6 +21,8 @@ app.get('/', (req, res) => {
 app.use('/api/users', userRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/publish-tasks', publishTasksRoutes);
+app.use('/api/gift-shop', giftRoutes);
+
 
 app.listen(PORT, () => {
     console.log(`TasKids server is running on port ${PORT}`);
