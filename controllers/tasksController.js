@@ -65,3 +65,31 @@ exports.deleteTask = async (req, res) => {
 };
 
 
+exports.updateTask = async (req, res) => {
+    const { taskId } = req.params;
+    const { taskName } = req.body;
+
+    if (!taskId || !taskName) {
+        return res.status(400).send({ message: 'Task ID and Task Name are required' });
+    }
+
+    try {
+        const connection = await dbConnection.createConnection();
+        
+        const [result] = await connection.execute(
+            'UPDATE tbl_109_tasks SET task_name = ? WHERE task_id = ?',
+            [taskName, taskId]
+        );
+        
+        await connection.end();
+        
+        if (result.affectedRows === 0) {
+            return res.status(404).send({ message: 'Task not found' });
+        }
+        
+        res.status(200).send({ message: 'Task updated successfully' });
+    } catch (error) {
+        console.error("Error updating task:", error);
+        res.status(500).send({ message: 'Internal server error' });
+    }
+};
