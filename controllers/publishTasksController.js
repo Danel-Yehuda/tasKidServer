@@ -20,14 +20,14 @@ exports.getPublishTasks = async (req, res) => {
 
 // Controller to create a new publish task
 exports.createPublishTask = async (req, res) => {
-    const { publish_task_name, publish_task_status, publish_task_coins, publish_task_deadline, publish_task_assigned_to } = req.body;
+    const { publish_task_name, publish_task_status, publish_task_coins, publish_task_deadline, publish_task_assigned_to, userId } = req.body;
     console.log(req.body);
     try {
         const connection = await dbConnection.createConnection();
         
         const [result] = await connection.execute(
-            'INSERT INTO tbl_109_publish_tasks (publish_task_name, publish_task_status, publish_task_coins, publish_task_deadline, publish_task_assigned_to) VALUES (?, ?, ?, ?, ?)',
-            [publish_task_name, publish_task_status, publish_task_coins, publish_task_deadline, publish_task_assigned_to]
+            'INSERT INTO tbl_109_publish_tasks (publish_task_name, publish_task_status, publish_task_coins, publish_task_deadline, publish_task_assigned_to, user_id) VALUES (?, ?, ?, ?, ?, ?)',
+            [publish_task_name, publish_task_status, publish_task_coins, publish_task_deadline, publish_task_assigned_to, userId]
         );
         
         const [rows] = await connection.execute(
