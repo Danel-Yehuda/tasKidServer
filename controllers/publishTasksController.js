@@ -70,13 +70,14 @@ exports.deletePublishTask = async (req, res) => {
 // Controller to update a publish task by ID
 exports.updatePublishTask = async (req, res) => {
     const { id } = req.params;
+    console.log(id);
     const { publish_task_name, publish_task_status, publish_task_coins, publish_task_deadline, publish_task_assigned_to } = req.body;
     try {
         const connection = await dbConnection.createConnection();
         
         const [result] = await connection.execute(
             'UPDATE tbl_109_publish_tasks SET publish_task_name = ?, publish_task_status = ?, publish_task_coins = ?, publish_task_deadline = ?, publish_task_assigned_to = ? WHERE publish_task_id = ?',
-            [publish_task_name, publish_task_status, publish_task_coins, publish_task_deadline, publish_task_assigned_to, publish_task_id]
+            [publish_task_name, publish_task_status, publish_task_coins, publish_task_deadline, publish_task_assigned_to, id]
         );
         
         if (result.affectedRows === 0) {
