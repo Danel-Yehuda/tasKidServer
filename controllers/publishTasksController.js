@@ -76,7 +76,7 @@ exports.updatePublishTask = async (req, res) => {
         
         const [result] = await connection.execute(
             'UPDATE tbl_109_publish_tasks SET publish_task_name = ?, publish_task_status = ?, publish_task_coins = ?, publish_task_deadline = ?, publish_task_assigned_to = ? WHERE publish_task_id = ?',
-            [publish_task_name, publish_task_status, publish_task_coins, publish_task_deadline, publish_task_assigned_to, id]
+            [publish_task_name, publish_task_status, publish_task_coins, publish_task_deadline, publish_task_assigned_to, publish_task_id]
         );
         
         if (result.affectedRows === 0) {

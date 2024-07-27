@@ -2,11 +2,11 @@ const express = require('express');
 const router = express.Router();
 const publishTasksController = require('../controllers/giftController');
 
-router.get('/', giftController.get);
+router.get('/', giftController.getGifts);
 
-router.post('/', giftController.create);
+router.post('/', giftController.createGift);
 
-router.delete('/:id', giftController.delete);
+router.delete('/:id', giftController.deleteGift);
 
 router.put('/:id', giftController.edit);
 
