@@ -8,4 +8,6 @@ router.post('/', publishTasksController.createPublishTask);
 
 router.delete('/:id', publishTasksController.deletePublishTask);
 
+router.put('/:id', publishTasksController.updatePublishTask);
+
 module.exports = router;

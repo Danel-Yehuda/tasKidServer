@@ -1,8 +1,12 @@
 const userRoutes = require('./routes/userRoutes');
 const taskRoutes = require('./routes/tasksRoutes');
 const publishTasksRoutes = require('./routes/publishTasksRoutes');
+<<<<<<< HEAD
 const giftRoutes = require('./routes/giftRoutes');
 
+=======
+const kidsRoutes = require('./routes/kidsRoutes');
+>>>>>>> 62ddeeee1fefbbdfede9240fa9f19ceafdf51e8b
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -23,7 +27,8 @@ app.get('/', (req, res) => {
 app.use('/api/users', userRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/publish-tasks', publishTasksRoutes);
-app.use('/api/gift-shop', giftRoutes);
+app.use('/api/kids', kidsRoutes);
+//app.use('/api/gift-shop', giftRoutes);
 
 
 app.listen(PORT, () => {

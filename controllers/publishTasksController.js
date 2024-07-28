@@ -3,13 +3,21 @@ const { dbConnection } = require('../db_connection');
 
 // Controller to get all publish tasks
 exports.getPublishTasks = async (req, res) => {
+    const { userId, kidId } = req.query;
+    let query = 'SELECT * FROM tbl_109_publish_tasks';
+    let params = [];
+
+    if (userId) {
+        query += ' WHERE user_id = ?';
+        params.push(userId);
+    } else if (kidId) {
+        query += ' WHERE kid_id = ?';
+        params.push(kidId);
+    }
+
     try {
         const connection = await dbConnection.createConnection();
-        
-        const [publishTasks] = await connection.execute(
-            'SELECT * FROM tbl_109_publish_tasks'
-        );
-        
+        const [publishTasks] = await connection.execute(query, params);
         await connection.end();
         res.status(200).send({ data: publishTasks });
     } catch (error) {
@@ -18,16 +26,17 @@ exports.getPublishTasks = async (req, res) => {
     }
 };
 
+
 // Controller to create a new publish task
 exports.createPublishTask = async (req, res) => {
-    const { publish_task_name, publish_task_status, publish_task_coins, publish_task_deadline, publish_task_assigned_to, userId } = req.body;
+    const { publish_task_name, publish_task_status, publish_task_coins, publish_task_deadline, publish_task_assigned_to, userId, kidId} = req.body;
     console.log(req.body);
     try {
         const connection = await dbConnection.createConnection();
         
         const [result] = await connection.execute(
-            'INSERT INTO tbl_109_publish_tasks (publish_task_name, publish_task_status, publish_task_coins, publish_task_deadline, publish_task_assigned_to, user_id) VALUES (?, ?, ?, ?, ?, ?)',
-            [publish_task_name, publish_task_status, publish_task_coins, publish_task_deadline, publish_task_assigned_to, userId]
+            'INSERT INTO tbl_109_publish_tasks (publish_task_name, publish_task_status, publish_task_coins, publish_task_deadline, publish_task_assigned_to, user_id, kid_id) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [publish_task_name, publish_task_status, publish_task_coins, publish_task_deadline, publish_task_assigned_to, userId, kidId]
         );
         
         const [rows] = await connection.execute(
@@ -70,13 +79,14 @@ exports.deletePublishTask = async (req, res) => {
 // Controller to update a publish task by ID
 exports.updatePublishTask = async (req, res) => {
     const { id } = req.params;
+    console.log(id);
     const { publish_task_name, publish_task_status, publish_task_coins, publish_task_deadline, publish_task_assigned_to } = req.body;
     try {
         const connection = await dbConnection.createConnection();
         
         const [result] = await connection.execute(
             'UPDATE tbl_109_publish_tasks SET publish_task_name = ?, publish_task_status = ?, publish_task_coins = ?, publish_task_deadline = ?, publish_task_assigned_to = ? WHERE publish_task_id = ?',
-            [publish_task_name, publish_task_status, publish_task_coins, publish_task_deadline, publish_task_assigned_to, publish_task_id]
+            [publish_task_name, publish_task_status, publish_task_coins, publish_task_deadline, publish_task_assigned_to, id]
         );
         
         if (result.affectedRows === 0) {
