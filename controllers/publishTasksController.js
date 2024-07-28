@@ -20,7 +20,7 @@ exports.getPublishTasks = async (req, res) => {
 
 // Controller to create a new publish task
 exports.createPublishTask = async (req, res) => {
-    const { publish_task_name, publish_task_status, publish_task_coins, publish_task_deadline, publish_task_assigned_to, userId } = req.body;
+    const { publish_task_name, publish_task_status, publish_task_coins, publish_task_deadline, publish_task_assigned_to, userId, } = req.body;
     console.log(req.body);
     try {
         const connection = await dbConnection.createConnection();

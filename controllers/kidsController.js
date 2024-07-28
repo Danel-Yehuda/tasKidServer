@@ -131,3 +131,18 @@ exports.signIn = async (req, res) => {
         res.status(500).send({ message: 'Internal server error' });
     }
 };
+
+exports.getKidsByParentId = async (req, res) => {
+    const { parentId } = req.params;
+    try {
+        const connection = await dbConnection.createConnection();
+        
+        const [kids] = await connection.execute('SELECT * FROM tbl_109_kids WHERE parent_id = ?', [parentId]);
+        
+        await connection.end();
+        res.status(200).send({ data: kids });
+    } catch (error) {
+        console.error("Error fetching kids by parent ID:", error);
+        res.status(500).send({ message: 'Internal server error' });
+    }
+};
