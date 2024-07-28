@@ -1,6 +1,7 @@
 const userRoutes = require('./routes/userRoutes');
 const taskRoutes = require('./routes/tasksRoutes');
 const publishTasksRoutes = require('./routes/publishTasksRoutes');
+const kidsRoutes = require('./routes/kidsRoutes');
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -21,6 +22,7 @@ app.get('/', (req, res) => {
 app.use('/api/users', userRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/publish-tasks', publishTasksRoutes);
+app.use('/api/kids', kidsRoutes);
 //app.use('/api/gift-shop', giftRoutes);
 
 
