@@ -13,10 +13,12 @@ exports.getGifts = async (req, res) => {
 };
 
 exports.createGift = async (req, res) => {
-    const { gift_name, coin_cost } = req.body;
+    console.log('Request body:', req.body); // Log the request body for debugging
+
+    const { gift_name, coin_cost, user_id } = req.body;
 
     // Validate inputs
-    if (!gift_name || coin_cost === undefined) {
+    if (!gift_name || coin_cost === undefined || !user_id) {
         return res.status(400).send({ message: 'Missing required fields' });
     }
 
@@ -24,8 +26,8 @@ exports.createGift = async (req, res) => {
         const connection = await dbConnection.createConnection();
 
         const [result] = await connection.execute(
-            'INSERT INTO tbl_109_gift (gift_name, coin_cost) VALUES (?, ?)',
-            [gift_name, coin_cost]
+            'INSERT INTO tbl_109_gift (gift_name, coin_cost, user_id) VALUES (?, ?, ?)',
+            [gift_name, coin_cost, user_id]
         );
 
         const [rows] = await connection.execute(
@@ -41,6 +43,7 @@ exports.createGift = async (req, res) => {
         res.status(500).send({ message: 'Internal server error' });
     }
 };
+
 
 
 exports.deleteGift = async (req, res) => {
