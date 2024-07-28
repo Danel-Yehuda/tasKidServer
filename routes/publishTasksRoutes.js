@@ -10,4 +10,6 @@ router.delete('/:id', publishTasksController.deletePublishTask);
 
 router.put('/:id', publishTasksController.updatePublishTask);
 
+router.put('/status/:id', publishTasksController.updatePublishTaskStatus);
+
 module.exports = router;

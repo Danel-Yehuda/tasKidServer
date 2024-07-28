@@ -107,3 +107,33 @@ exports.updatePublishTask = async (req, res) => {
         res.status(500).send({ message: 'Internal server error' });
     }
 };
+
+exports.updatePublishTaskStatus = async (req, res) => {
+    const { id } = req.params;
+    const { publish_task_status } = req.body;
+    try {
+        const connection = await dbConnection.createConnection();
+
+        const [result] = await connection.execute(
+            'UPDATE tbl_109_publish_tasks SET publish_task_status = ? WHERE publish_task_id = ?',
+            [publish_task_status, id]
+        );
+
+        if (result.affectedRows === 0) {
+            await connection.end();
+            return res.status(404).send({ message: 'Publish task not found' });
+        }
+
+        const [rows] = await connection.execute(
+            'SELECT * FROM tbl_109_publish_tasks WHERE publish_task_id = ?',
+            [id]
+        );
+
+        const updatedTask = rows[0];
+        await connection.end();
+        res.status(200).send({ data: updatedTask });
+    } catch (error) {
+        console.error("Error updating publish task status:", error);
+        res.status(500).send({ message: 'Internal server error' });
+    }
+};
