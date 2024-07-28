@@ -1,6 +1,8 @@
 const userRoutes = require('./routes/userRoutes');
 const taskRoutes = require('./routes/tasksRoutes');
 const publishTasksRoutes = require('./routes/publishTasksRoutes');
+const giftRoutes = require('./routes/giftRoutes');
+
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
