@@ -1,6 +1,8 @@
 const userRoutes = require('./routes/userRoutes');
 const taskRoutes = require('./routes/tasksRoutes');
 const publishTasksRoutes = require('./routes/publishTasksRoutes');
+const giftRoutes = require('./routes/giftRoutes');
+
 const kidsRoutes = require('./routes/kidsRoutes');
 const express = require('express');
 const cors = require('cors');
@@ -23,7 +25,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/publish-tasks', publishTasksRoutes);
 app.use('/api/kids', kidsRoutes);
-//app.use('/api/gift-shop', giftRoutes);
+app.use('/api/gift-shop', giftRoutes);
 
 
 app.listen(PORT, () => {

@@ -1,14 +1,9 @@
-require('dotenv').config();
 const { dbConnection } = require('../db_connection');
-
 
 exports.getGifts = async (req, res) => {
     try {
         const connection = await dbConnection.createConnection();
-        const [gifts] = await connection.execute(
-            'SELECT * FROM tbl_109_gift'
-        );
-
+        const [gifts] = await connection.execute('SELECT * FROM tbl_109_gift');
         await connection.end();
         res.status(200).send({ data: gifts });
     } catch (error) {
@@ -18,14 +13,19 @@ exports.getGifts = async (req, res) => {
 };
 
 exports.createGift = async (req, res) => {
-    const { gift_id, user_id, gift_name, coin_cost } = req.body;
-    console.log(req.body);
+    const { gift_name, coin_cost } = req.body;
+
+    // Validate inputs
+    if (!gift_name || coin_cost === undefined) {
+        return res.status(400).send({ message: 'Missing required fields' });
+    }
+
     try {
         const connection = await dbConnection.createConnection();
 
         const [result] = await connection.execute(
-            'INSERT INTO tbl_109_gift (gift_id, user_id, gift_name, coin_cost VALUES (?, ?, ?, ?)',
-            [gift_id, user_id, gift_name, coin_cost]
+            'INSERT INTO tbl_109_gift (gift_name, coin_cost) VALUES (?, ?)',
+            [gift_name, coin_cost]
         );
 
         const [rows] = await connection.execute(
@@ -42,16 +42,15 @@ exports.createGift = async (req, res) => {
     }
 };
 
+
 exports.deleteGift = async (req, res) => {
     const { id } = req.params;
     try {
         const connection = await dbConnection.createConnection();
-
         const [result] = await connection.execute(
             'DELETE FROM tbl_109_gift WHERE gift_id = ?',
             [id]
         );
-
         await connection.end();
         if (result.affectedRows === 0) {
             res.status(404).send({ message: 'Gift not found' });
@@ -64,27 +63,23 @@ exports.deleteGift = async (req, res) => {
     }
 };
 
-exports.updatePublishTask = async (req, res) => {
+exports.updateGift = async (req, res) => {
     const { id } = req.params;
     const { gift_name, coin_cost } = req.body;
     try {
         const connection = await dbConnection.createConnection();
-
         const [result] = await connection.execute(
             'UPDATE tbl_109_gift SET gift_name = ?, coin_cost = ? WHERE gift_id = ?',
-            [gift_name, coin_cost, gift_id]
+            [gift_name, coin_cost, id]
         );
-
         if (result.affectedRows === 0) {
             await connection.end();
             return res.status(404).send({ message: 'Gift not found' });
         }
-
         const [rows] = await connection.execute(
             'SELECT * FROM tbl_109_gift WHERE gift_id = ?',
             [id]
         );
-
         const updatedGift = rows[0];
         await connection.end();
         res.status(200).send({ data: updatedGift });
