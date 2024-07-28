@@ -10,4 +10,6 @@ router.delete('/:id', kidsController.deleteKid);
 
 router.put('/:id', kidsController.updateKid);
 
+router.post('/signin', kidsController.signIn);
+
 module.exports = router;
