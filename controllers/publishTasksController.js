@@ -1,5 +1,6 @@
 require('dotenv').config();
 const { dbConnection } = require('../db_connection');
+const axios = require('axios');
 
 // Controller to get all publish tasks
 exports.getPublishTasks = async (req, res) => {
@@ -143,6 +144,7 @@ exports.approveTask = async (req, res) => {
     try {
         const connection = await dbConnection.createConnection();
 
+        // Update task status and approve column
         const [result] = await connection.execute(
             'UPDATE tbl_109_publish_tasks SET approve = 1, publish_task_status = 3 WHERE publish_task_id = ?',
             [id]
@@ -153,6 +155,7 @@ exports.approveTask = async (req, res) => {
             return res.status(404).send({ message: 'Publish task not found' });
         }
 
+        // Get the updated task
         const [rows] = await connection.execute('SELECT * FROM tbl_109_publish_tasks WHERE publish_task_id = ?', [id]);
         const approvedTask = rows[0];
 
@@ -168,6 +171,22 @@ exports.approveTask = async (req, res) => {
             [historyEntry.date, historyEntry.kid, historyEntry.action, historyEntry.publish_task_name]
         );
 
+        // Update kid's coins
+        const [kidRows] = await connection.execute('SELECT * FROM tbl_109_kids WHERE kid_name = ?', [approvedTask.publish_task_assigned_to]);
+        const kid = kidRows[0];
+        const updatedCoins = kid.kid_coins + approvedTask.publish_task_coins;
+        await connection.execute('UPDATE tbl_109_kids SET kid_coins = ? WHERE kid_id = ?', [updatedCoins, kid.kid_id]);
+
+        // Send a message to the kid
+        const message = `Congratulations! Your task -${approvedTask.publish_task_name}- has been approved and you earned ${approvedTask.publish_task_coins} coins!`;
+        await sendMessage(kid.kid_id, message);
+
+        // Create a message entry in the database
+        await connection.execute(
+            'INSERT INTO tbl_109_messages (kid_id, message) VALUES (?, ?)',
+            [kid.kid_id, message]
+        );
+
         await connection.end();
         res.status(200).send({ data: approvedTask });
     } catch (error) {
@@ -175,3 +194,15 @@ exports.approveTask = async (req, res) => {
         res.status(500).send({ message: 'Internal server error' });
     }
 };
+
+async function sendMessage(kidId, message) {
+    try {
+        await axios.post('https://external-api-for-messaging.com/send', {
+            kidId,
+            message
+        });
+        console.log('Message sent successfully');
+    } catch (error) {
+        console.error('Error sending message:', error);
+    }
+}
