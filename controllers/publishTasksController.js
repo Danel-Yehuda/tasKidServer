@@ -5,14 +5,14 @@ const axios = require('axios');
 // Controller to get all publish tasks
 exports.getPublishTasks = async (req, res) => {
     const { userId, kidId } = req.query;
-    let query = 'SELECT * FROM tbl_109_publish_tasks';
+    let query = 'SELECT * FROM tbl_109_publish_tasks WHERE approve != 1';
     let params = [];
 
     if (userId) {
-        query += ' WHERE user_id = ?';
+        query += ' AND user_id = ?';
         params.push(userId);
     } else if (kidId) {
-        query += ' WHERE kid_id = ?';
+        query += ' AND kid_id = ?';
         params.push(kidId);
     }
 
@@ -111,10 +111,20 @@ exports.updatePublishTask = async (req, res) => {
 
 exports.updatePublishTaskStatus = async (req, res) => {
     const { id } = req.params;
-    const { publish_task_status } = req.body;
+    const { publish_task_status, kidId, kidName } = req.body;
+    const timestamp = new Date();
     try {
         const connection = await dbConnection.createConnection();
 
+        // Fetch the user ID based on the kid ID
+        const [userRows] = await connection.execute('SELECT parent_id FROM tbl_109_kids WHERE kid_id = ?', [kidId]);
+        if (userRows.length === 0) {
+            await connection.end();
+            return res.status(404).send({ message: 'User not found for the given kid ID' });
+        }
+        const userId = userRows[0].parent_id;
+        
+        // Update the task status
         const [result] = await connection.execute(
             'UPDATE tbl_109_publish_tasks SET publish_task_status = ? WHERE publish_task_id = ?',
             [publish_task_status, id]
@@ -131,6 +141,22 @@ exports.updatePublishTaskStatus = async (req, res) => {
         );
 
         const updatedTask = rows[0];
+
+        // Send messages to user based on task status
+        let message;
+        if (publish_task_status === 2) {
+            message = `Kid ${kidName} has started the task "${updatedTask.publish_task_name}" at ${timestamp.toLocaleString()}`;
+        } else if (publish_task_status === 3) {
+            message = `Kid ${kidName} has completed the task "${updatedTask.publish_task_name}" at ${timestamp.toLocaleString()}`;
+        }
+
+        if (message) {
+            await connection.execute(
+                'INSERT INTO tbl_109_messages (user_id, kid_id, message, timestamp) VALUES (?, ?, ?, ?)',
+                [userId, kidId, message, timestamp]
+            );
+        }
+
         await connection.end();
         res.status(200).send({ data: updatedTask });
     } catch (error) {
@@ -138,6 +164,8 @@ exports.updatePublishTaskStatus = async (req, res) => {
         res.status(500).send({ message: 'Internal server error' });
     }
 };
+
+
 
 exports.approveTask = async (req, res) => {
     const { id } = req.params;
