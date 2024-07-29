@@ -137,3 +137,41 @@ exports.updatePublishTaskStatus = async (req, res) => {
         res.status(500).send({ message: 'Internal server error' });
     }
 };
+
+exports.approveTask = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const connection = await dbConnection.createConnection();
+
+        const [result] = await connection.execute(
+            'UPDATE tbl_109_publish_tasks SET approve = 1, publish_task_status = 3 WHERE publish_task_id = ?',
+            [id]
+        );
+
+        if (result.affectedRows === 0) {
+            await connection.end();
+            return res.status(404).send({ message: 'Publish task not found' });
+        }
+
+        const [rows] = await connection.execute('SELECT * FROM tbl_109_publish_tasks WHERE publish_task_id = ?', [id]);
+        const approvedTask = rows[0];
+
+        // Create a history entry for task approval
+        const historyEntry = {
+            date: new Date().toISOString().split('T')[0],
+            kid: approvedTask.publish_task_assigned_to,
+            action: 'Approved',
+            publish_task_name: approvedTask.publish_task_name
+        };
+        await connection.execute(
+            'INSERT INTO tbl_109_history (date, kid, action, publish_task_name) VALUES (?, ?, ?, ?)',
+            [historyEntry.date, historyEntry.kid, historyEntry.action, historyEntry.publish_task_name]
+        );
+
+        await connection.end();
+        res.status(200).send({ data: approvedTask });
+    } catch (error) {
+        console.error("Error approving task:", error);
+        res.status(500).send({ message: 'Internal server error' });
+    }
+};
