@@ -2,6 +2,7 @@ const userRoutes = require('./routes/userRoutes');
 const taskRoutes = require('./routes/tasksRoutes');
 const publishTasksRoutes = require('./routes/publishTasksRoutes');
 const giftRoutes = require('./routes/giftRoutes');
+const historyRoutes = require('./routes/historyRoutes');
 
 const kidsRoutes = require('./routes/kidsRoutes');
 const express = require('express');
@@ -26,7 +27,7 @@ app.use('/api/tasks', taskRoutes);
 app.use('/api/publish-tasks', publishTasksRoutes);
 app.use('/api/kids', kidsRoutes);
 app.use('/api/gift-shop', giftRoutes);
-
+app.use('/api/history', historyRoutes);
 
 app.listen(PORT, () => {
     console.log(`TasKids server is running on port ${PORT}`);
