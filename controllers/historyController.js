@@ -14,6 +14,19 @@ exports.getHistory = async (req, res) => {
     }
 };
 
+exports.getHistoryByTaskName = async (req, res) => {
+    const { taskName } = req.params;
+    try {
+        const connection = await dbConnection.createConnection();
+        const [history] = await connection.execute('SELECT * FROM tbl_109_history WHERE publish_task_name = ?', [taskName]);
+        await connection.end();
+        res.status(200).send({ data: history });
+    } catch (error) {
+        console.error("Error fetching history by task name:", error);
+        res.status(500).send({ message: 'Internal server error' });
+    }
+};
+
 // Controller to create a new history entry
 exports.createHistory = async (req, res) => {
     const { date, kid, action, publish_task_name } = req.body;
