@@ -27,24 +27,22 @@ exports.getPublishTasks = async (req, res) => {
     }
 };
 
-
-// Controller to create a new publish task
 exports.createPublishTask = async (req, res) => {
     const { publish_task_name, publish_task_status, publish_task_coins, publish_task_deadline, publish_task_assigned_to, userId, kidId} = req.body;
     console.log(req.body);
     try {
         const connection = await dbConnection.createConnection();
-        
+
         const [result] = await connection.execute(
             'INSERT INTO tbl_109_publish_tasks (publish_task_name, publish_task_status, publish_task_coins, publish_task_deadline, publish_task_assigned_to, user_id, kid_id) VALUES (?, ?, ?, ?, ?, ?, ?)',
             [publish_task_name, publish_task_status, publish_task_coins, publish_task_deadline, publish_task_assigned_to, userId, kidId]
         );
-        
+
         const [rows] = await connection.execute(
             'SELECT * FROM tbl_109_publish_tasks WHERE publish_task_id = ?',
             [result.insertId]
         );
-        
+
         const publishTask = rows[0];
         await connection.end();
         res.status(201).send({ data: publishTask });
@@ -165,14 +163,11 @@ exports.updatePublishTaskStatus = async (req, res) => {
     }
 };
 
-
-
 exports.approveTask = async (req, res) => {
     const { id } = req.params;
     try {
         const connection = await dbConnection.createConnection();
 
-        // Update task status and approve column
         const [result] = await connection.execute(
             'UPDATE tbl_109_publish_tasks SET approve = 1, publish_task_status = 3 WHERE publish_task_id = ?',
             [id]
