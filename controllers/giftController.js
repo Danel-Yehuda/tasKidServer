@@ -66,7 +66,7 @@ exports.deleteGift = async (req, res) => {
     }
 };
 
-exports.updateGift = async (req, res) => {
+exports.editGift = async (req, res) => {
     const { id } = req.params;
     const { gift_name, coin_cost } = req.body;
     try {
