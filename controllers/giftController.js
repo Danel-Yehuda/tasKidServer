@@ -91,3 +91,43 @@ exports.editGift = async (req, res) => {
         res.status(500).send({ message: 'Internal server error' });
     }
 };
+
+exports.buyGift = async (req, res) => {
+    const giftId = req.params.id;
+    const { kidId } = req.body;
+
+
+    try {
+        const connection = await dbConnection.createConnection();
+
+        const [giftRows] = await connection.execute('SELECT coin_cost FROM tbl_109_gift WHERE gift_id = ?', [giftId]);
+        if (giftRows.length === 0) {
+            await connection.end();
+            return res.status(404).send({ message: 'Gift not found' });
+        }
+        const giftCost = giftRows[0].coin_cost;
+
+        const [kidRows] = await connection.execute('SELECT kid_coins FROM tbl_109_kids WHERE kid_id = ?', [kidId]);
+        if (kidRows.length === 0) {
+            await connection.end();
+            return res.status(404).send({ message: 'Kid not found' });
+        }
+        const kidCoins = kidRows[0].kid_coins;
+
+        if (kidCoins < giftCost) {
+            await connection.end();
+            return res.status(400).send({ message: 'Not enough coins' });
+        }
+
+        const updatedCoins = kidCoins - giftCost;
+        await connection.execute('UPDATE tbl_109_kids SET kid_coins = ? WHERE kid_id = ?', [updatedCoins, kidId]);
+
+        await connection.execute('DELETE FROM tbl_109_gift WHERE gift_id = ?', [giftId]);
+
+        await connection.end();
+        res.status(200).send({ message: 'Gift purchased and deleted successfully' });
+    } catch (error) {
+        console.error("Error buying gift:", error);
+        res.status(500).send({ message: 'Internal server error' });
+    }
+};
