@@ -202,7 +202,6 @@ exports.approveTask = async (req, res) => {
 
         // Send a message to the kid
         const message = `Congratulations! Your task -${approvedTask.publish_task_name}- has been approved and you earned ${approvedTask.publish_task_coins} coins!`;
-        await sendMessage(kid.kid_id, message);
 
         // Create a message entry in the database
         await connection.execute(
@@ -217,15 +216,3 @@ exports.approveTask = async (req, res) => {
         res.status(500).send({ message: 'Internal server error' });
     }
 };
-
-async function sendMessage(kidId, message) {
-    try {
-        await axios.post('https://external-api-for-messaging.com/send', {
-            kidId,
-            message
-        });
-        console.log('Message sent successfully');
-    } catch (error) {
-        console.error('Error sending message:', error);
-    }
-}
