@@ -1,6 +1,5 @@
 require('dotenv').config();
 const { dbConnection } = require('../db_connection');
-const axios = require('axios');
 
 // Controller to get all publish tasks
 exports.getPublishTasks = async (req, res) => {
