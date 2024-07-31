@@ -204,7 +204,9 @@ exports.approveTask = async (req, res) => {
         const [kidRows] = await connection.execute('SELECT * FROM tbl_109_kids WHERE kid_name = ?', [approvedTask.publish_task_assigned_to]);
         const kid = kidRows[0];
         const updatedCoins = kid.kid_coins + approvedTask.publish_task_coins;
-        await connection.execute('UPDATE tbl_109_kids SET kid_coins = ? WHERE kid_id = ?', [updatedCoins, kid.kid_id]);
+        const updatedTasksDone = kid.kid_tasks_done + 1;
+        await connection.execute('UPDATE tbl_109_kids SET kid_coins = ?, kid_tasks_done = ? WHERE kid_id = ?', 
+            [updatedCoins, updatedTasksDone, kid.kid_id]);
 
         // Send a message to the kid
         const message = `Congratulations! Your task -${approvedTask.publish_task_name}- has been approved and you earned ${approvedTask.publish_task_coins} coins!`;
