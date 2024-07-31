@@ -14,4 +14,6 @@ router.put('/status/:id', publishTasksController.updatePublishTaskStatus);
 
 router.put('/approve/:id', publishTasksController.approveTask);
 
+router.put('/color/:id', publishTasksController.updateTaskColor);
+
 module.exports = router;

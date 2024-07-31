@@ -225,3 +225,30 @@ exports.approveTask = async (req, res) => {
         res.status(500).send({ message: 'Internal server error' });
     }
 };
+
+exports.updateTaskColor = async (req, res) => {
+    const { id } = req.params;
+    const { color } = req.body;
+
+    try {
+        const connection = await dbConnection.createConnection();
+        const [result] = await connection.execute(
+            'UPDATE tbl_109_publish_tasks SET color = ? WHERE publish_task_id = ?',
+            [color, id]
+        );
+
+        if (result.affectedRows === 0) {
+            await connection.end();
+            return res.status(404).send({ message: 'Publish task not found' });
+        }
+
+        const [rows] = await connection.execute('SELECT * FROM tbl_109_publish_tasks WHERE publish_task_id = ?', [id]);
+        const updatedTask = rows[0];
+
+        await connection.end();
+        res.status(200).send({ data: updatedTask });
+    } catch (error) {
+        console.error('Error updating task color:', error);
+        res.status(500).send({ message: 'Internal server error' });
+    }
+};
