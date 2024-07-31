@@ -1,7 +1,7 @@
 require('dotenv').config();
 const { dbConnection } = require('../db_connection');
 
-// Controller to get messages by kid ID or user ID
+
 exports.getMessages = async (req, res) => {
     const { id, type } = req.params;
     let query;
@@ -25,7 +25,6 @@ exports.getMessages = async (req, res) => {
 };
 
 
-// Controller to create a new message entry
 exports.createMessage = async (req, res) => {
     const { userId, kidId, message, timestamp } = req.body;
     try {

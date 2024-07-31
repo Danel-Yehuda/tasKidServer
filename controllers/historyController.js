@@ -1,7 +1,7 @@
 require('dotenv').config();
 const { dbConnection } = require('../db_connection');
 
-// Controller to get all history entries
+
 exports.getHistory = async (req, res) => {
     try {
         const connection = await dbConnection.createConnection();
@@ -27,7 +27,7 @@ exports.getHistoryByTaskName = async (req, res) => {
     }
 };
 
-// Controller to create a new history entry
+
 exports.createHistory = async (req, res) => {
     const { date, kid, action, publish_task_name } = req.body;
     try {

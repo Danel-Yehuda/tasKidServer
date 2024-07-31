@@ -2,7 +2,7 @@ require('dotenv').config();
 const { dbConnection } = require('../db_connection');
 const { sendSms } = require('../smsService');
 
-// Controller to get all publish tasks
+
 exports.getPublishTasks = async (req, res) => {
     const { userId, kidId } = req.query;
     let query = 'SELECT * FROM tbl_109_publish_tasks WHERE approve != 1';
@@ -52,7 +52,7 @@ exports.createPublishTask = async (req, res) => {
     }
 };
 
-// Controller to delete a publish task by ID
+
 exports.deletePublishTask = async (req, res) => {
     const { id } = req.params;
     try {
@@ -75,7 +75,7 @@ exports.deletePublishTask = async (req, res) => {
     }
 };
 
-// Controller to update a publish task by ID
+
 exports.updatePublishTask = async (req, res) => {
     const { id } = req.params;
     console.log(id);
@@ -114,7 +114,7 @@ exports.updatePublishTaskStatus = async (req, res) => {
     try {
         const connection = await dbConnection.createConnection();
 
-        // Fetch the user based on the kid ID
+        
         const [userRows] = await connection.execute('SELECT parent_id, phone FROM tbl_109_kids k JOIN tbl_109_users u ON k.parent_id = u.user_id WHERE k.kid_id = ?', [kidId]);
         if (userRows.length === 0) {
             await connection.end();
@@ -124,7 +124,7 @@ exports.updatePublishTaskStatus = async (req, res) => {
         const userId = user.parent_id;
         const userPhone = user.phone;
 
-        // Update the task status
+        
         const [result] = await connection.execute(
             'UPDATE tbl_109_publish_tasks SET publish_task_status = ? WHERE publish_task_id = ?',
             [publish_task_status, id]
@@ -142,7 +142,7 @@ exports.updatePublishTaskStatus = async (req, res) => {
 
         const updatedTask = rows[0];
 
-        // Send messages to user based on task status
+        
         let message;
         if (publish_task_status === 2) {
             message = `Kid ${kidName} has started the task "${updatedTask.publish_task_name}" at ${timestamp.toLocaleString()}`;
@@ -184,11 +184,11 @@ exports.approveTask = async (req, res) => {
             return res.status(404).send({ message: 'Publish task not found' });
         }
 
-        // Get the updated task
+        
         const [rows] = await connection.execute('SELECT * FROM tbl_109_publish_tasks WHERE publish_task_id = ?', [id]);
         const approvedTask = rows[0];
 
-        // Create a history entry for task approval
+        
         const historyEntry = {
             date: new Date().toISOString().split('T')[0],
             kid: approvedTask.publish_task_assigned_to,
@@ -200,7 +200,7 @@ exports.approveTask = async (req, res) => {
             [historyEntry.date, historyEntry.kid, historyEntry.action, historyEntry.publish_task_name]
         );
 
-        // Update kid's coins
+        
         const [kidRows] = await connection.execute('SELECT * FROM tbl_109_kids WHERE kid_name = ?', [approvedTask.publish_task_assigned_to]);
         const kid = kidRows[0];
         console.log(kid);
@@ -209,10 +209,10 @@ exports.approveTask = async (req, res) => {
         await connection.execute('UPDATE tbl_109_kids SET kid_coins = ?, kid_tasks_done = ? WHERE kid_id = ?', 
             [updatedCoins, updatedTasksDone, kid.kid_id]);
 
-        // Send a message to the kid
+        
         const message = `Congratulations! Your task -${approvedTask.publish_task_name}- has been approved and you earned ${approvedTask.publish_task_coins} coins!`;
 
-        // Create a message entry in the database
+        
         await connection.execute(
             'INSERT INTO tbl_109_messages (kid_id, message) VALUES (?, ?)',
             [kid.kid_id, message]

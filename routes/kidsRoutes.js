@@ -4,7 +4,7 @@ const kidsController = require('../controllers/kidsController');
 
 router.get('/', kidsController.getKids);
 router.get('/:id', kidsController.getKidById);
-router.get('/byParent/:parentId', kidsController.getKidsByParentId); // New route for fetching kids by parent ID
+router.get('/byParent/:parentId', kidsController.getKidsByParentId);
 router.post('/', kidsController.createKid);
 router.delete('/:id', kidsController.deleteKid);
 router.put('/:id', kidsController.updateKid);

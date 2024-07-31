@@ -13,11 +13,11 @@ exports.getGifts = async (req, res) => {
 };
 
 exports.createGift = async (req, res) => {
-    console.log('Request body:', req.body); // Log the request body for debugging
+    console.log('Request body:', req.body);
 
     const { gift_name, coin_cost, user_id } = req.body;
 
-    // Validate inputs
+    
     if (!gift_name || coin_cost === undefined || !user_id) {
         return res.status(400).send({ message: 'Missing required fields' });
     }

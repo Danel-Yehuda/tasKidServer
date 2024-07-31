@@ -2,7 +2,7 @@ require('dotenv').config();
 const bcrypt = require('bcrypt');
 const { dbConnection } = require('../db_connection');
 
-// Controller to get all kids
+
 exports.getKids = async (req, res) => {
     try {
         const connection = await dbConnection.createConnection();
@@ -17,7 +17,7 @@ exports.getKids = async (req, res) => {
     }
 };
 
-// Controller to create a new kid
+
 exports.createKid = async (req, res) => {
     const { kid_name, parent_email, parent_id, kid_password, kid_coins = 5, kid_tasks_done = 0 } = req.body;
     try {
@@ -40,7 +40,7 @@ exports.createKid = async (req, res) => {
     }
 };
 
-// Controller to delete a kid by ID
+
 exports.deleteKid = async (req, res) => {
     const { id } = req.params;
     try {
@@ -60,7 +60,7 @@ exports.deleteKid = async (req, res) => {
     }
 };
 
-// Controller to update a kid by ID
+
 exports.updateKid = async (req, res) => {
     const { id } = req.params;
     const { kid_name, kid_coins, kid_tasks_done, kid_password } = req.body;
@@ -92,7 +92,7 @@ exports.updateKid = async (req, res) => {
     }
 };
 
-// Controller to sign in a kid
+
 exports.signIn = async (req, res) => {
     const { parent_email, kid_password } = req.body;
     console.log(req.body);
@@ -100,7 +100,7 @@ exports.signIn = async (req, res) => {
     try {
         const connection = await dbConnection.createConnection();
 
-        // Retrieve the parent user to get the parent_id
+        
         const [parentRows] = await connection.execute('SELECT user_id FROM tbl_109_users WHERE user_email = ?', [parent_email]);
 
         if (parentRows.length === 0) {
@@ -109,7 +109,7 @@ exports.signIn = async (req, res) => {
 
         const parent = parentRows[0];
 
-        // Retrieve the kid using the parent_id and kid password
+        
         const [kidRows] = await connection.execute('SELECT * FROM tbl_109_kids WHERE parent_id = ?', [parent.user_id]);
         
         if (kidRows.length === 0) {
@@ -147,7 +147,7 @@ exports.getKidsByParentId = async (req, res) => {
     }
 };
 
-// Controller to get a kid by ID
+
 exports.getKidById = async (req, res) => {
     const { id } = req.params;
     try {
