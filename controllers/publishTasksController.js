@@ -1,5 +1,6 @@
 require('dotenv').config();
 const { dbConnection } = require('../db_connection');
+const { sendSms } = require('../smsService');
 
 // Controller to get all publish tasks
 exports.getPublishTasks = async (req, res) => {
@@ -113,14 +114,16 @@ exports.updatePublishTaskStatus = async (req, res) => {
     try {
         const connection = await dbConnection.createConnection();
 
-        // Fetch the user ID based on the kid ID
-        const [userRows] = await connection.execute('SELECT parent_id FROM tbl_109_kids WHERE kid_id = ?', [kidId]);
+        // Fetch the user based on the kid ID
+        const [userRows] = await connection.execute('SELECT parent_id, phone FROM tbl_109_kids k JOIN tbl_109_users u ON k.parent_id = u.user_id WHERE k.kid_id = ?', [kidId]);
         if (userRows.length === 0) {
             await connection.end();
             return res.status(404).send({ message: 'User not found for the given kid ID' });
         }
-        const userId = userRows[0].parent_id;
-        
+        const user = userRows[0];
+        const userId = user.parent_id;
+        const userPhone = user.phone;
+
         // Update the task status
         const [result] = await connection.execute(
             'UPDATE tbl_109_publish_tasks SET publish_task_status = ? WHERE publish_task_id = ?',
@@ -145,6 +148,10 @@ exports.updatePublishTaskStatus = async (req, res) => {
             message = `Kid ${kidName} has started the task "${updatedTask.publish_task_name}" at ${timestamp.toLocaleString()}`;
         } else if (publish_task_status === 3) {
             message = `Kid ${kidName} has completed the task "${updatedTask.publish_task_name}" at ${timestamp.toLocaleString()}`;
+        }
+
+        if (message && userPhone) {
+            await sendSms(userPhone, message);
         }
 
         if (message) {
