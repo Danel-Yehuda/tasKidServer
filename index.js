@@ -4,6 +4,7 @@ const publishTasksRoutes = require('./routes/publishTasksRoutes');
 const giftRoutes = require('./routes/giftRoutes');
 const historyRoutes = require('./routes/historyRoutes');
 const messagesRoutes = require('./routes/messagesRoutes');
+require('dotenv').config();
 
 const kidsRoutes = require('./routes/kidsRoutes');
 const express = require('express');
