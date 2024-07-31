@@ -203,6 +203,7 @@ exports.approveTask = async (req, res) => {
         // Update kid's coins
         const [kidRows] = await connection.execute('SELECT * FROM tbl_109_kids WHERE kid_name = ?', [approvedTask.publish_task_assigned_to]);
         const kid = kidRows[0];
+        console.log(kid);
         const updatedCoins = kid.kid_coins + approvedTask.publish_task_coins;
         const updatedTasksDone = kid.kid_tasks_done + 1;
         await connection.execute('UPDATE tbl_109_kids SET kid_coins = ?, kid_tasks_done = ? WHERE kid_id = ?', 
