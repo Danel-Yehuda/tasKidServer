@@ -28,16 +28,30 @@ exports.getPublishTasks = async (req, res) => {
 };
 
 exports.createPublishTask = async (req, res) => {
-    const { publish_task_name, publish_task_status, publish_task_coins, publish_task_deadline, publish_task_assigned_to, userId, kidId} = req.body;
+    const { publish_task_name, publish_task_status, publish_task_coins, publish_task_deadline, publish_task_assigned_to, userId, kidId } = req.body;
     console.log(req.body);
     try {
         const connection = await dbConnection.createConnection();
 
+        // Check if a task with the given name exists for the user
+        const [existingTasks] = await connection.execute(
+            'SELECT * FROM tbl_109_tasks WHERE task_name = ? AND user_id = ?',
+            [publish_task_name, userId]
+        );
+
+        if (existingTasks.length === 0) {
+            // No existing task with the given name found
+            await connection.end();
+            return res.status(400).send({ message: 'No existing task with the given name found.' });
+        }
+
+        // Insert new publish task
         const [result] = await connection.execute(
             'INSERT INTO tbl_109_publish_tasks (publish_task_name, publish_task_status, publish_task_coins, publish_task_deadline, publish_task_assigned_to, user_id, kid_id) VALUES (?, ?, ?, ?, ?, ?, ?)',
             [publish_task_name, publish_task_status, publish_task_coins, publish_task_deadline, publish_task_assigned_to, userId, kidId]
         );
 
+        // Fetch the newly created publish task
         const [rows] = await connection.execute(
             'SELECT * FROM tbl_109_publish_tasks WHERE publish_task_id = ?',
             [result.insertId]
@@ -51,6 +65,7 @@ exports.createPublishTask = async (req, res) => {
         res.status(500).send({ message: 'Internal server error' });
     }
 };
+
 
 
 exports.deletePublishTask = async (req, res) => {

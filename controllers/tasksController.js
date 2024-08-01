@@ -5,17 +5,31 @@ exports.createTask = async (req, res) => {
     const { taskName, userId } = req.body;
     try {
         const connection = await dbConnection.createConnection();
-        
-        const [result] = await connection.execute(
-            'INSERT INTO tbl_109_tasks (task_name,user_id) VALUES (?,?)',
+
+        // Check if a task with the same name already exists for the user
+        const [existingTasks] = await connection.execute(
+            'SELECT * FROM tbl_109_tasks WHERE task_name = ? AND user_id = ?',
             [taskName, userId]
         );
-        
+
+        if (existingTasks.length > 0) {
+            // Task with the same name already exists for the user
+            await connection.end();
+            return res.status(400).send({ message: 'Task with the same name already exists.' });
+        }
+
+        // Insert new task
+        const [result] = await connection.execute(
+            'INSERT INTO tbl_109_tasks (task_name, user_id) VALUES (?, ?)',
+            [taskName, userId]
+        );
+
+        // Fetch the newly created task
         const [rows] = await connection.execute(
             'SELECT * FROM tbl_109_tasks WHERE task_id = ?',
             [result.insertId]
         );
-        
+
         const task = rows[0];
         await connection.end();
         res.status(201).send({ data: task });
@@ -24,6 +38,7 @@ exports.createTask = async (req, res) => {
         res.status(500).send({ message: 'Internal server error' });
     }
 };
+
 
 exports.getTasks = async (req, res) => {
     try {
